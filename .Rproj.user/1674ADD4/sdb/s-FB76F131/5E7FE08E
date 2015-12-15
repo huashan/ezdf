@@ -1,0 +1,18 @@
+{
+    "contents" : "data(\"iris\")\n\naa= as.ez(iris)\n\nclass(aa)\n\n\ndebug(table.data.table)\ntable.data.table(aa, Petal.Width +Petal.Length ~ Species)\nt1 = table.data.table(aa,  ~ Species + Petal.Length)\nlibrary(pander)\npander(t1)\n\nt2 = copy(t1)\nsetnames(t2, paste(names(t2), '(aaa)', sep = '\\n'))\npandoc.table.return(t2, style = 'multiline')\npander(t2, keep.line.breaks = F)\n\ndebug(split.large.cells)\ndebug(pandoc.table.return)\n\ndat = data.table(iris)\nmean(aa, Sepal.Width, grp = 'Species,Petal.Length', N=T)\n\nff = Petal.Length + Sepal.Width ~ Species + test\nff = Petal.Length ~ Species\nff = ~Petal.Length + spe\nas.character(attr(terms(ff), 'variables'))\nas.character(attr(terms(ff), 'variables')[-c(1:2)])\n\nstr(terms(ff))\nlength(terms(ff))\n\n",
+    "created" : 1449850478697.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "2535290127",
+    "id" : "5E7FE08E",
+    "lastKnownWriteTime" : 7011605692497750387,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

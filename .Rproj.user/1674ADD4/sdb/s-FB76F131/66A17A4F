@@ -1,0 +1,18 @@
+{
+    "contents" : "match_labels <- function(expr, meta) {\n  assertthat::noNA(meta)\n  ret = meta[expr, ]\n  keepVarName = getOptKeepVarname()\n  if (keepVarName) {\n    ret[[2]] = paste(ret[[1]], ret[[2]], sep = '\\n')\n  } else {\n    ret[[2]][is.na(ret[[2]])] = ret[is.na(ret[[2]]), 1, with = F]\n  }\n  ret\n}\n\npander.summary.lm_x <- function(x, caption = attr(x, 'caption'), covariate.labels,\n                  omit, summary = TRUE, add.significance.stars = FALSE, ...){\n\n  if (missing(covariate.labels) ) {\n    model_data = as.character(x$call)[3]\n    model_data = if (is.na(model_data)) model_data else get(model_data)\n    if (inherits(model_data, 'ez.data.frame')) {\n      meta = attr(model_data, 'meta')\n      covariate.labels = meta\n    }\n  }\n  #  covariate.labels may be a character vector or data.frame ( meta from ez.data.frame or provided as is)\n  if (!is.null(covariate.labels)) {\n    if (!is.null(dim(covariate.labels))) {\n      covariate.labels = match_labels(rownames(x$coefficients), covariate.labels)[[2]]\n    }\n  }\n  pander.summary.lm_y(x, caption, covariate.labels, omit, summary, add.significance.stars, ...)\n}\n\ninit_pander <- function(){\n  if (is.null(pander.summary.lm_y)) {\n    pander.summary.lm_y <<- pander:::pander.summary.lm\n    pkgutils::set_hook('pander', 'pander.summary.lm', pander.summary.lm_x)\n  }\n}\n\n\n\n",
+    "created" : 1449910889465.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "28112968",
+    "id" : "66A17A4F",
+    "lastKnownWriteTime" : 1449930861,
+    "path" : "E:/Huashan/Stat/R/packages/ezfm/R/pander_utils.R",
+    "project_path" : "R/pander_utils.R",
+    "properties" : {
+        "tempName" : "Untitled3"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

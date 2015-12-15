@@ -1,0 +1,18 @@
+{
+    "contents" : "split.single.cell <- function(x, max.width){\n  if (!is.character(x)) {\n    x <- as.character(x)\n  }\n  ## as.character(NA) remains NA, which causes isses with nchar since 2015-04-23\n  ## https://stat.ethz.ch/pipermail/r-devel/2015-April/071007.html\n  if (is.na(x)) {\n    x <- 'NA'\n  }\n  if (!style %in% c('simple', 'rmarkdown')) {\n    ## split\n    if (nchar(x) == nchar(encodeString(x)) && !use.hyphening) {\n      x <- paste(strwrap(x, width = max.width + 1), collapse = '\\n')\n    } else {\n      ## dealing with CJK chars + also it does not count \\n, \\t, etc.\n      ## this happens because width - counts only the number of columns\n      ## cat will use to print the string in a monospaced font.\n      if (!keep.line.breaks){\n        x <- gsub('\\n', ' ', x)\n        x <- splitLine(x, max.width, use.hyphening)\n      } else {\n        lines <- strsplit(x, '\\\\n')[[1]]\n        x <- ''\n        for (line in lines) {\n          sl <- splitLine(line, max.width, use.hyphening)\n          x <- paste0(x, sl, sep='\\n')\n        }\n      }\n    }\n  }else{\n    x <- gsub('^\\\\s+|\\\\s+$', '', x)\n  }\n  x\n}\n\nsplit.large.cells <- function(cells, for.rownames = FALSE) {\n  \n  ## if we have a single value, extend it to a vector to do less checks laters\n  if (length(split.cells) == 1) {\n    split.cells <- rep(split.cells, length(cells))\n  }\n  if (for.rownames) {\n    # in case it is used for rownames, we only need the first value\n    split.cells <- rep(split.cells[1], length(cells))\n  }\n  \n  res <- NULL\n  rn <- rownames(cells)\n  ## single value and vectors/lists\n  if (length(dim(cells)) < 2) {\n    \n    ## discard first value which was for rownames\n    if (!for.rownames && (length(split.cells) >= length(cells) + 1)) {\n      split.cells <- split.cells[-1]\n    }\n    \n    if (length(cells) > length(split.cells)) {\n      warning('length of split.cells vector is smaller than data. Default value will be used for other cells') #nolint\n      split.cells <- c(split.cells, rep(panderOptions('table.split.cells'), length(cells) - length(split.cells))) #nolint\n    }\n    res <- sapply(seq_along(cells), function(x, i) split.single.cell(x[i], max.width = split.cells[i]), x = cells, USE.NAMES = FALSE) #nolint\n    \n  } else {\n    # matrixes and tables\n    ## discard first value which was for rownames\n    if ((length(split.cells) >= dim(cells)[2] + 1)){\n      split.cells <- split.cells[-1]\n    }\n    \n    if (dim(cells)[2] > length(split.cells)) {\n      warning('length of split.cells vector is smaller than data. Default value will be used for other cells')\n      split.cells <- c(split.cells, rep(panderOptions('table.split.cells'),\n                                        dim(cells)[2] - length(split.cells)))\n    }\n    \n    for (j in 1:dim(cells)[2]) {\n      res <- cbind(res, sapply(cells[,j], split.single.cell, max.width = split.cells[j], USE.NAMES = FALSE))\n    }\n    \n  }\n  rownames(res) <- rn\n  ## return\n  res\n  \n}\n\nstyle = 'multiline'\nsplit.cells <- panderOptions('table.split.cells')\nsplit.large.cells(colnames(t2))\n",
+    "created" : 1449901429080.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "2170678607",
+    "id" : "5B144A1A",
+    "lastKnownWriteTime" : 7011605692497750387,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
