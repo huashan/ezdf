@@ -37,7 +37,8 @@ readStata <- function(file, encoding) {
 
   if (!missing(encoding)) {
     Encoding(lbl) = encoding
-    invisible(mapply(setattr, dt, lbl, name = 'label', SIMPLIFY = F))
+    # use data.table:::setattr() in case package bit is loaded
+    invisible(mapply(data.table:::setattr, dt, lbl, name = 'label', SIMPLIFY = F))
     lapply(dt, setValueLabels, encoding = encoding)  
   }
   
@@ -71,7 +72,7 @@ readSPSS<-function(file, lib='foreign', ...) {
 
 #' Convert a data.frame or data.table object into an ez.data.frame.
 #' 
-#' @param dt
+#' @param df
 #' @param meta data.frame containing meta information with at least two columns.
 #' @family ez.data.frame
 #' @examples 
@@ -80,9 +81,9 @@ readSPSS<-function(file, lib='foreign', ...) {
 #' class(aa)
 #' attr(aa, 'meta')
 #' table(aa, ~Species)
-as.ez <- function(dt, meta = NULL) {
-  if (!inherits(dt, 'data.table')) {
-    dt = as.data.table(dt)
+as.ez <- function(df, meta = NULL) {
+  if (!inherits(df, 'data.table')) {
+    df = as.data.table(df)
   }
   if (!is.null(meta)) {
     if (!inherits(meta, 'data.frame')) stop('meta must be a data.frame')
@@ -91,32 +92,62 @@ as.ez <- function(dt, meta = NULL) {
     meta[, 2] = as.character(meta[, 2])
     meta = as.data.table(meta)
     setkeyv(meta, names(meta)[1])
-    attr(dt, 'meta')<-meta
+    setattr(df, 'meta', meta)
+    # set variable.labels attribute for data imported from spss?
+    # for better display in data viewer
   }
-  class(dt)<-union('ez.data.frame', class(dt))
-  dt
+  class(df)<-union('ez.data.frame', class(df))
+  invisible(df)
 }
 
 
-setmeta <- function(DT, meta) {
+setmeta <- function(ez, meta) {
   UseMethod('setmeta')
 }
 
-setmeta.ez.data.frame <- function(DT, meta) {
-  as.ez(DT, meta)
+setmeta.ez.data.frame <- function(ez, meta) {
+  as.ez(ez, meta)
 }
 
 #' assign value labels to an ez.data.frame object
-# todo
-set_value_labels <- function(ez, labels) {
-  
+#' 
+#' @param ez
+#' @param col column name, character
+#' @param labels a named vector for value labels, e.g. c(a=1, b=2, c=3)
+#' @examples 
+#' library(ezdf)
+#' data(iris)
+#' iris = as.ez(iris)
+#' class(iris)
+#' iris$test = sample(5, size = nrow(iris), replace = T)
+#' tbl(iris, ~test)
+#' options('ezdfKeepVal' = T)
+#' set_value_labels(iris, 'test', c(a=1, b=2, c=3))
+#' tbl(iris, ~test, )
+set_value_labels <- function(ez, col, labels) {
+  UseMethod('set_value_labels')
 }
 
-tbl<- function(DT, expr, func = 'mean', N = FALSE, sort = TRUE){
-  UseMethod("tbl", DT)
+set_value_labels.ez.data.frame <- function(ez, col, labels) {
+  setattr(ez[[col]], 'labels', labels)
 }
 
-tbl.ez.data.frame<-function(dt, expr, func = 'mean', N = FALSE, sort = TRUE){
+#' multivariate table
+#' 
+#' @param DT ez.data.frame object
+#' @param expr formula object
+#' @param func statistics applied on the data subset 
+#' @examples 
+#' tbl(dat, a66 ~ s5a)
+#' tbl(dat, a66 ~ s5a + s41, 'sum')
+#' tbl(dat, a66 ~ s5a + s41, 'mean', N = T)
+#' pander(tbl(dat, ~ s41 + s5a + a66, 'sum', sort = T))
+#' tbl(dat, ~ s5a + a66)
+tbl<- function(ez, expr, func = 'mean', N = FALSE, sort = TRUE){
+  UseMethod("tbl", ez)
+}
+
+tbl.ez.data.frame<-function(ez, expr, func = 'mean', N = FALSE, sort = TRUE){
   tt = terms(expr)
   if (length(tt) == 2) {
     # x only, output frequency
@@ -134,7 +165,7 @@ tbl.ez.data.frame<-function(dt, expr, func = 'mean', N = FALSE, sort = TRUE){
 
   grp = paste0(x, collapse = ',')
   if (is.null(y)) {
-    dat = dt[, .N, by = grp]
+    dat = ez[, .N, by = grp]
     warning(sprintf("No Y variables in expr, output frequencies. Function '%s' is omitted", func))
   } else {
     vars = y
@@ -143,18 +174,18 @@ tbl.ez.data.frame<-function(dt, expr, func = 'mean', N = FALSE, sort = TRUE){
     isMultiGrp = grepl(',', grp) # 分组变量有可能多个
     
     if (isMultiGrp){
-      dat = dt[, eval(expr), by = grp, .SDcols = vars]
+      dat = ez[, eval(expr), by = grp, .SDcols = vars]
     }else{
       #dat = dt[!is.na(eval(parse(text=grp))), eval(expr), by = eval(parse(text = sprintf('list(%s)', x))), .SDcols = vars]
-      dat = dt[!is.na(eval(parse(text=grp))), eval(expr), by = eval(parse(text =grp)), .SDcols = vars]
+      dat = ez[!is.na(eval(parse(text=grp))), eval(expr), by = eval(parse(text =grp)), .SDcols = vars]
       if (names(dat)[[1L]] == 'parse') setnames(dat, 1L, grp)
     }
     
     if (N) {
       if (isMultiGrp){
-        dt.n = dt[, .N, by = grp]
+        dt.n = ez[, .N, by = grp]
       } else {
-        dt.n = dt[!is.na(eval(grp)), .N, by = eval(grp)]
+        dt.n = ez[!is.na(eval(grp)), .N, by = eval(grp)]
       }
       dat[, N:=dt.n$N]
     }
@@ -163,7 +194,7 @@ tbl.ez.data.frame<-function(dt, expr, func = 'mean', N = FALSE, sort = TRUE){
   if (sort) setkeyv(dat, x)
 
   setmeta<-function() {
-    meta = attr(dt, 'meta')
+    meta = attr(ez, 'meta')
     if (!is.null(meta)) {
       meta = meta[nzchar(meta[, 2, with = F]), ]
       ns = names(dat)
@@ -188,8 +219,8 @@ tbl.ez.data.frame<-function(dt, expr, func = 'mean', N = FALSE, sort = TRUE){
   }
   # set value labels for grouping variables
   # 如果x是factor，则无需再设label
-  x = x[sapply(dt[, x, with = F], is.numeric)]
-  lbls = lapply(dt[, x, with = F], attr, which = 'labels')
+  x = x[sapply(ez[, x, with = F], is.numeric)]
+  lbls = lapply(ez[, x, with = F], attr, which = 'labels')
   #dat[, `:=`(x, lapply(.SD, setValueLabels)), .SDcols = x, with = F]
   dat[, `:=`(x, mapply(setValueLabels, .SD, lbls, SIMPLIFY = F)), .SDcols = x, with = F]
   
@@ -199,18 +230,21 @@ tbl.ez.data.frame<-function(dt, expr, func = 'mean', N = FALSE, sort = TRUE){
   dat
 }
 
+#' flat table using ftable()
+#' 
+#' @param style 1=frequency, 2=percentage, 3=percentage with Sum
+#' @param ... parameters for ftable.formula(), must have both left and right hand sides.
 #debug(ftable.ez.data.frame)
-#' @param ... parameters for ftable.formula()
-ftable.ez.data.frame <- function(dt, formula, style = 1, prop_margin = 1, ...) {
+ftable.ez.data.frame <- function(ez, formula, style = 1, prop_margin = 1, ...) {
   setValueLabels <- function(idx, ftbl.attr) {
-    lbl = attr(dt[[names(ftbl.attr)[idx]]], 'labels')
+    lbl = attr(ez[[names(ftbl.attr)[idx]]], 'labels')
     if (!is.null(lbl)) {
       fetchValueLabels(ftbl.attr[[idx]], lbl, withValue = getOptKeepVal())
     } else {
       ftbl.attr[[idx]]
     }
   }
-  t1 = stats:::ftable.formula(formula, data = dt, ...)
+  t1 = stats:::ftable.formula(formula, data = ez, ...)
   a1 = attr(t1, 'row.vars')
   attr(t1, 'row.vars')<- lapply(seq_along(a1), setValueLabels, a1)
   a1 = attr(t1, 'col.vars')
@@ -225,11 +259,11 @@ ftable.ez.data.frame <- function(dt, formula, style = 1, prop_margin = 1, ...) {
          '3' = cbind(as.matrix(prop.table(t1, prop_margin)), N=apply(t1, 1, sum)))
 }
 
-ctbl<- function(DT, expr){
-  UseMethod("ctbl", DT)
+ctbl<- function(ez, expr){
+  UseMethod("ctbl", ez)
 }
 
-ctbl.ez.data.frame<-function(dt, expr){
+ctbl.ez.data.frame<-function(ez, expr){
   tt = terms(expr)
   if (length(tt) == 2) {
     # x only, output frequency
@@ -244,8 +278,8 @@ ctbl.ez.data.frame<-function(dt, expr){
   }
   
   #expr = parse(text=paste0('lapply(.SD, ', func, ', na.rm=T)'))
-  vars = c(x, y)
-  table(dt[, vars, with=F])
+  vars = c(y, x)
+  table(ez[, vars, with=F])
 }
 
 getOptKeepVarname <- function(){
@@ -261,11 +295,60 @@ getOptValueLabelSep <- function() {
   getOption('ezdfValueLabelSep', default= ' ')
 }
 
-getValueLabels <- function(dt, col) {
-  attr(dt[[col]], 'labels', exact = T)
+getValueLabels <- function(ez, col) {
+  UseMethod('getValueLabels', ez)
+}  
+
+getValueLabels.ez.data.frame <- function(ez) {
+  attr(ez[[col]], 'labels', exact = T)
+}
+
+getVarLabels <- function(ez, varnames) {
+  UseMethod('getVarLabels')  
+}
+
+getVarLabels.ez.data.frame <- function(ez, varnames) {
+  meta = attr(ez, 'meta')
+  if (!is.null(meta)) {
+    meta = meta[nzchar(meta[, 2, with = F]), ]
+    ret = meta[varnames, ] #nomatch=0
+    ret[[2]][is.na(ret[[2]])] = ''
+    keepVarName = getOptKeepVarname()
+    if (keepVarName) {
+      ret[[2]] = sprintf('%s\n(%s)', ret[[2]], ret[[1]])
+    } else {
+      ret[[2]][is.na(ret[[2]])] = ret[is.na(ret[[2]]), 1, with = F]
+    }
+    ret[[2]]
+  } else {
+    varnames
+  }
 }
 
 
+getVarLabelsFromMeta <- function(meta, varnames) {
+  assertthat::noNA(meta)
+  ret = meta[varnames, ]
+  keepVarName = getOptKeepVarname()
+  if (keepVarName) {
+    ret[[2]] = sprintf('%s\n(%s)', ret[[2]], ret[[1]])
+  } else {
+    ret[[2]][is.na(ret[[2]])] = ret[is.na(ret[[2]]), 1, with = F]
+  }
+  ret
+}
+
+getMetaValueLabels <- function(idx, ftbl.attr, dt) {
+  #lbl = attr(dt[[names(ftbl.attr)[idx] ]], 'labels')
+  lbl = getValueLabels(dt, names(ftbl.attr)[idx])
+  if (!is.null(lbl)) {
+    fetchValueLabels(ftbl.attr[[idx]], lbl, withValue = getOptKeepVal())
+  } else {
+    ftbl.attr[[idx]]
+  }
+}
+
+#' @noRd
 #' lbl = getValueLabels(dat, 's5a')
 #' fetchValueLabels(11:13, lbl)
 #' fetchValueLabels(8:13, lbl, withValue = T)
@@ -277,7 +360,7 @@ fetchValueLabels <- function(x, tbl, withValue = FALSE) {
     names(tbl)[match(x, tbl, nomatch = 1)]
 }
 
-
+#' @noRd
 #' @param tbl match table with names attribute
 #' @param nomatch 'asis': use values from x, else use nomatch for substitution
 #' @examples 

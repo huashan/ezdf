@@ -57,3 +57,21 @@ pander(m1)
 
 
 
+library(ezdf)
+data(iris)
+iris = as.ez(iris)
+class(iris)
+iris$test = sample(5, size = nrow(iris), replace = T)
+tbl(iris, ~test)
+options('ezdfKeepVal' = T)
+set_value_labels(iris, 'test', c(a=1, b=2, c=3))
+tbl(iris, ~test)
+
+iris = setmeta(iris, data.frame(var= 'test', lbl = 'YYYY'))
+attr(iris, 'meta')
+
+t1 = ftable(iris$Species, iris$test)
+pander:::pander.ftable(t1, ez = iris)
+
+# error? 
+tbl(d1, Species~test, 'length')
