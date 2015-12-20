@@ -18,6 +18,7 @@
 #' tbl(dat, a66 ~ s5a)
 readStata <- function(file, encoding) {
   require(haven)
+  
   dt = read_dta(file)
   # 修正数据出现  “Error: `x` and `labels` must be same type”错误的临时解决办法：
   dt = as.data.table(lapply(dt, unclass), stringsAsFactors = F)

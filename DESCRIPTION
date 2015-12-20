@@ -9,8 +9,11 @@ Description: friendly data.frame with label output
 License: BSD
 Depends:
     R (>= 3.0)
+Depends:
+    data.table
 Imports:
-    data.table,
+    pander
+Suggests:
     pander
 LazyData: TRUE
 KeepSource: TRUE

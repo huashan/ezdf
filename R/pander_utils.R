@@ -139,14 +139,16 @@ pander.summary.lm_x <- function(x, caption = attr(x, 'caption'), covariate.label
 
 #' @noRd
 init_hooks <- function(){
-  if (!exists('pander.summary.lm_y', ez_globals)) {
-    assign("pander.summary.lm_y", pander:::pander.summary.lm, ez_globals)
-    set_hook('pander', 'pander.summary.lm', pander.summary.lm_x)
-  }
-
-  if (!exists('pander.ftable_y', ez_globals)) {
-    assign("pander.ftable_y", pander:::pander.ftable, ez_globals)
-    set_hook('pander', 'pander.ftable', pander.ftable_x)
+  if (!is.null(path.package('pander', quiet = TRUE))) {
+    if (!exists('pander.summary.lm_y', ez_globals)) {
+      assign("pander.summary.lm_y", pander:::pander.summary.lm, ez_globals)
+      set_hook('pander', 'pander.summary.lm', pander.summary.lm_x)
+    }
+  
+    if (!exists('pander.ftable_y', ez_globals)) {
+      assign("pander.ftable_y", pander:::pander.ftable, ez_globals)
+      set_hook('pander', 'pander.ftable', pander.ftable_x)
+    }
   }
   set_hook('base', 'table', table_x)
 }
