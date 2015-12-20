@@ -1,8 +1,8 @@
-% Readme
+# ezdf: Easy data.frame
 
-# What is Easy data.frame?
 
-# Install
+
+# Installation
 
 ```r
 library(devtools)
@@ -21,4 +21,10 @@ may try these:
 ```r
 options(download.file.method = "wininet")
 install_git("https://github.com/huashan/ezdf")
+```
+
+You may also install an R package [pander](https://github.com/huashan/pander), an R pandoc writer. This is a fixed version with better support for CJK characters.
+
+```r
+devtools::install_github('huashan/pander')
 ```
