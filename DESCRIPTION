@@ -14,7 +14,7 @@ Depends:
 Imports:
     pander
 Suggests:
-    pander
+    haven,pander
 LazyData: TRUE
 KeepSource: TRUE
 ByteCompile: yes
