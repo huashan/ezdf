@@ -1,13 +1,11 @@
 setwd('E:/Huashan/Stat/R/Lectures/北大新传/data')
 
-#library(pander)
-
-
 library(ezdf)
 dat = readStata('CGSS2013（居民问卷） 发布版.dta', encoding = 'GB2312')
 tbl(dat, a66 ~ s5a)
 tbl(dat, a66 ~ s5a + s41, 'sum')
 tbl(dat, a66 ~ s5a + s41, 'mean', N = T)
+library(pander)
 pander(tbl(dat, ~ s41 + s5a + a66, 'sum', sort = T))
 
 aa = tbl(dat, ~ s5a + a66)
@@ -71,6 +69,7 @@ iris = setmeta(iris, data.frame(var= 'test', lbl = 'YYYY'))
 attr(iris, 'meta')
 
 t1 = ftable(iris$Species, iris$test)
+options('inDebug'= 1)
 pander:::pander.ftable(t1, ez = iris)
 
 # error? 
