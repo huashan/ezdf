@@ -13,11 +13,11 @@
 #' tbl(dat, a66 ~ s5a + s41, 'mean', N = T)
 #' pander(tbl(dat, ~ s41 + s5a + a66, 'sum', sort = T))
 #' tbl(dat, ~ s5a + a66)
-tbl<- function(ez, expr, func = 'mean', N = FALSE, sort = TRUE){
+tbl<- function(ez, expr, func = 'mean', N = FALSE, sort = TRUE, ...){
   UseMethod("tbl", ez)
 }
 
-tbl.ez.data.frame<-function(ez, expr, func = 'mean', N = FALSE, sort = TRUE){
+tbl.ez.data.frame<-function(ez, expr, func = 'mean', N = FALSE, sort = TRUE, ...){
   tt = terms(expr)
   if (length(tt) == 2) {
     # x only, output frequency
@@ -31,7 +31,9 @@ tbl.ez.data.frame<-function(ez, expr, func = 'mean', N = FALSE, sort = TRUE){
     x = as.character(attr(tt, 'variables')[-c(1:2)])
   }
   
-  expr = parse(text=paste0('lapply(.SD, ', func, ', na.rm=T)'))
+  dots = list(...)  
+  dotsArg = if (length(dots) > 0) paste0(', ', paste(names(dots), dots, sep='=', collapse = ',')) else ''
+  expr = parse(text=paste0('lapply(.SD, ', func, dotsArg, ')'))
   
   grp = paste0(x, collapse = ',')
   if (is.null(y)) {
@@ -126,7 +128,8 @@ ftable.ez.data.frame <- function(ez, formula, style = 1, prop_margin = 1, ...) {
   switch(as.character(style),
          '1' = as.matrix(t1),
          '2' = as.matrix(prop.table(t1, prop_margin)),
-         '3' = cbind(as.matrix(prop.table(t1, prop_margin)), N=apply(t1, 1, sum)))
+         '3' = cbind(as.matrix(prop.table(t1, prop_margin)), N=apply(t1, 1, sum)),
+         warning('style value not valid'))
 }
 
 ctbl<- function(ez, expr){

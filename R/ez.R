@@ -16,7 +16,7 @@
 #' dat = readStata('CGSS2013（居民问卷） 发布版.dta')
 #' class(dat)
 #' tbl(dat, a66 ~ s5a)
-readStata <- function(file, encoding) {
+readStata <- function(file, encoding = NULL, charEncoding = encoding) {
   require(haven)
   
   dt = read_dta(file)
@@ -24,6 +24,10 @@ readStata <- function(file, encoding) {
   dt = as.data.table(lapply(dt, unclass), stringsAsFactors = F)
 
   lbl = sapply(dt, attr, 'label')
+  if (is.list(lbl)) {
+    lbl[sapply(lbl, is.null)] =''
+    lbl = unlist(lbl)   
+  }
   
   setValueLabels <- function(col, encoding) {
     llbl = attr(col, 'labels'); 
@@ -36,11 +40,17 @@ readStata <- function(file, encoding) {
     invisible()
   }
 
-  if (!missing(encoding)) {
+  if (!is.null(encoding)) {
     Encoding(lbl) = encoding
+    
     # use data.table:::setattr() in case package bit is loaded
     invisible(mapply(data.table:::setattr, dt, lbl, name = 'label', SIMPLIFY = F))
     lapply(dt, setValueLabels, encoding = encoding)  
+    
+    if (!is.null(charEncoding)) {
+      col = names(dt)[sapply(dt, class) == 'character']
+      for (x in col) set(dt, NULL, x, `Encoding<-`(dt[[x]], charEncoding))
+    }
   }
   
   meta = data.frame(var = names(dt), lbl = lbl, stringsAsFactors = F)
