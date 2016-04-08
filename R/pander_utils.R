@@ -130,7 +130,7 @@ pander.summary.lm_x <- function(x, caption = attr(x, 'caption'), covariate.label
   if (!is.null(covariate.labels)) {
     if (!is.null(dim(covariate.labels))) {
       #covariate.labels = match_var_labels(rownames(x$coefficients), covariate.labels)[[2]]
-      covariate.labels = getVarLabelsFromMeta(covariate.labels, rownames(x$coefficients))
+      covariate.labels = metaVarLabels(covariate.labels, rownames(x$coefficients))
     }
   }
   pander.summary.lm_y = get('pander.summary.lm_y', ez_globals)
