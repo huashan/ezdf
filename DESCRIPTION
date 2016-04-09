@@ -8,9 +8,7 @@ Maintainer: Huashan Chen <chenhuashan@gmail.com>
 Description: friendly data.frame with label output
 License: BSD
 Depends:
-    R (>= 3.0)
-Depends:
-    data.table
+    R (>= 3.0), data.table
 Imports:
     pander
 Suggests:
