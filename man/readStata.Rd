@@ -4,12 +4,14 @@
 \alias{readStata}
 \title{Import Stata .dta file using package haven}
 \usage{
-readStata(file, encoding)
+readStata(file, encoding = NULL, charEncoding = encoding)
 }
 \arguments{
 \item{file}{dta file name.}
 
 \item{encoding}{Character encoding for labels, default is UTF-8.}
+
+\item{charEncoding}{Character encoding for character variables, default is the same as encoding.}
 }
 \value{
 ez.data.frame class object inherited from data.table
@@ -18,10 +20,11 @@ ez.data.frame class object inherited from data.table
 Import Stata .dta file using package haven
 }
 \examples{
-setwd('E:/Huashan/Stat/R/Lectures/北大新传/data')
 library(ezdf)
 dat = readStata('CGSS2013（居民问卷） 发布版.dta')
 class(dat)
+# set encoding properly
+dat = readStata('CGSS2013（居民问卷） 发布版.dta', encoding = 'GB2312')
 tbl(dat, a66 ~ s5a)
 }
 \seealso{

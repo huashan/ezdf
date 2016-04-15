@@ -1,14 +1,15 @@
 Package: ezdf
 Type: Package
 Title: Easy Data.Frame
-Version: 0.1-10
+Version: 0.2-12
 Date: 2015-12-12
 Author: Huashan Chen
 Maintainer: Huashan Chen <chenhuashan@gmail.com>
 Description: friendly data.frame with label output
 License: BSD
 Depends:
-    R (>= 3.0), data.table
+    R (>= 3.0),
+    data.table
 Imports:
     pander
 Suggests:

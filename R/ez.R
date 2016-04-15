@@ -6,15 +6,17 @@
 #' 
 #' @param file dta file name.
 #' @param encoding Character encoding for labels, default is UTF-8.
+#' @param charEncoding Character encoding for character variables, default is the same as encoding.
 #' @return ez.data.frame class object inherited from data.table
 #' @export 
 #' @family Stata dta
 #' @seealso readSPSS
 #' @examples 
-#' setwd('E:/Huashan/Stat/R/Lectures/北大新传/data')
 #' library(ezdf)
 #' dat = readStata('CGSS2013（居民问卷） 发布版.dta')
 #' class(dat)
+#' # set encoding properly
+#' dat = readStata('CGSS2013（居民问卷） 发布版.dta', encoding = 'GB2312')
 #' tbl(dat, a66 ~ s5a)
 readStata <- function(file, encoding = NULL, charEncoding = encoding) {
   require(haven)
@@ -25,7 +27,8 @@ readStata <- function(file, encoding = NULL, charEncoding = encoding) {
 
   lbl = sapply(dt, attr, 'label')
   if (is.list(lbl)) {
-    lbl[sapply(lbl, is.null)] =''
+    lbl[sapply(lbl, is.null)] = ''
+    lbl[sapply(lbl, length) > 1] = ''  
     lbl = unlist(lbl)   
   }
   
