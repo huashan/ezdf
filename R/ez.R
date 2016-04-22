@@ -73,13 +73,13 @@ readSPSS<-function(file, lib='foreign', ...) {
   
   if (lib == 'foreign') {
     dt = as.data.table(read.spss(file, to.data.frame = TRUE, ...))
-    varlbl = attr(dat, 'variable.labels')
+    varlbl = attr(dt, 'variable.labels')
   } else {
     dt = read_spss(file)
     varlb = sapply(dt, attr, 'label')
   }
   
-  meta = data.frame(var = names(dat), lbl = varlbl, stringsAsFactors=F)
+  meta = data.frame(var = names(dt), lbl = varlbl, stringsAsFactors=F)
   as.ez(dt, meta)
 }
 
