@@ -5,8 +5,9 @@
 #' Import Stata .dta file using package haven
 #' 
 #' @param file dta file name.
-#' @param encoding Character encoding for labels, default is UTF-8.
-#' @param charEncoding Character encoding for character variables, default is the same as encoding.
+#' @param encoding Encoding for labels, default is UTF-8.
+#' @param varNameEncoding Encoding for variable names, default is the same as `encoding`.
+#' @param charEncoding Encoding for character variables, default is the same as `encoding`.
 #' @return ez.data.frame class object inherited from data.table
 #' @export 
 #' @family Stata dta
@@ -18,12 +19,18 @@
 #' # set encoding properly
 #' dat = readStata('CGSS2013（居民问卷） 发布版.dta', encoding = 'GB2312')
 #' tbl(dat, a66 ~ s5a)
-readStata <- function(file, encoding = NULL, charEncoding = encoding) {
+readStata <- function (file, encoding = NULL, varNameEncoding = encoding, 
+  charEncoding = encoding) {
   require(haven)
   
   dt = read_dta(file)
   # 修正数据出现  “Error: `x` and `labels` must be same type”错误的临时解决办法：
   dt = as.data.table(lapply(dt, unclass), stringsAsFactors = F)
+  if (!is.null(varNameEncoding)) {
+  	nn = names(dt)
+  	Encoding(nn) = varNameEncoding
+  	setnames(dt, nn)
+  }
 
   lbl = sapply(dt, attr, 'label')
   if (is.list(lbl)) {

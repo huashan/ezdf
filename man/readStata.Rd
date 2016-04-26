@@ -4,14 +4,17 @@
 \alias{readStata}
 \title{Import Stata .dta file using package haven}
 \usage{
-readStata(file, encoding = NULL, charEncoding = encoding)
+readStata(file, encoding = NULL, varNameEncoding = encoding,
+  charEncoding = encoding)
 }
 \arguments{
 \item{file}{dta file name.}
 
-\item{encoding}{Character encoding for labels, default is UTF-8.}
+\item{encoding}{Encoding for labels, default is UTF-8.}
 
-\item{charEncoding}{Character encoding for character variables, default is the same as encoding.}
+\item{varNameEncoding}{Encoding for variable names, default is the same as `encoding`.}
+
+\item{charEncoding}{Encoding for character variables, default is the same as `encoding`.}
 }
 \value{
 ez.data.frame class object inherited from data.table
