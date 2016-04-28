@@ -1,1 +1,6 @@
 exportPattern("^[[:alpha:]]+")
+
+
+
+S3method("+", value.labels)
+S3method("-", value.labels)

@@ -177,6 +177,7 @@ valueLabels.ez.data.frame <- function(ez, col) {
 }
 
 `valueLabels<-.ez.data.frame` <- function(ez, col, value) {
+  if (is.null(ez[[col]])) stop(sprintf('column %s not exist', col))
   data.table::setattr(ez[[col]], 'labels', value[seq_len(length(value))])
   ez
 }

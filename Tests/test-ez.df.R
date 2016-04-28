@@ -2,8 +2,8 @@ library(testthat)
 library(ezdf)
 
 data(iris)
-ezdt$test = sample(5, size = nrow(iris), replace = T)
 ezdt = as.ez(iris)
+ezdt$test = sample(5, size = nrow(iris), replace = T)
 
 test_that('as.ez.data.frame', {
   expect_is(ezdt, 'ez.data.frame')
@@ -61,4 +61,4 @@ test_that('tbl', {
   
 })
 
-#debug('varLabels.ez.data.frame')
+
