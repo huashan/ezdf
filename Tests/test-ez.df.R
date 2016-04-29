@@ -34,19 +34,26 @@ test_that('value labels', {
 })
 
 test_that('var labels', {
+  expect_null(varLabels(ezdt))
+
   meta = varLabels(ezdt, c('Species','test'))
+  expect_equal(meta, c("", ""))
+  
+  meta = varLabels(ezdt, c('Species','test'), default = "var")
   expect_equal(meta, c('Species','test'))
   
   expect_equal(varLabels(ezdt, ''), '')
-  #expect_equal(varLabels(ezdt, ''), character(0))
-  expect_equal(varLabels(ezdt, 'nonexists'), 'nonexists')
+  expect_equal(varLabels(ezdt, 'nonexists'), '')
+  expect_equal(varLabels(ezdt, 'nonexists', default = 'var'), 'nonexists')
   
   varLabels(ezdt, 'test') = 'TEST'
   expect_equal(varLabels(ezdt, 'test'), 'TEST')
 
-  expect_equal(varLabels(ezdt, c('Species', 'test')), c('Species', 'TEST'))
+  expect_equal(varLabels(ezdt, c('Species', 'test')), c('', 'TEST'))
+  expect_equal(varLabels(ezdt, c('Species', 'test'), "var"), c('Species', 'TEST'))
   
- # meta = attr(ezdt, 'meta')
+  varLabels(ezdt, "test") <- "New Label"
+  varLabels(ezdt, "test")
 })
 
 test_that('tbl', {

@@ -117,10 +117,9 @@ as.ez <- function(df, meta = NULL) {
     # set variable.labels attribute for data imported from spss?
     # for better display in data viewer
   }
-  class(df)<-union('ez.data.frame', class(df))
+  class(df)<-union(c('ez.data.frame', 'ezdf'), class(df))
   invisible(df)
 }
-
 
 setmeta <- function(ez, meta) {
   UseMethod('setmeta')
@@ -129,7 +128,6 @@ setmeta <- function(ez, meta) {
 setmeta.ez.data.frame <- function(ez, meta) {
   as.ez(ez, meta)
 }
-
 
 getOptKeepVarname <- function(){
   keepVarName = getOption('ezdfKeepVarName', default= F)
@@ -185,7 +183,7 @@ valueLabels.ez.data.frame <- function(ez, col) {
 `+.value.labels` <- function(e1, e2) {
   if (!is.null(e2) & is.null(names(e2))) stop('value must be a named vector')
   idx_dup = match(e2, e1, nomatch = 0)
-  ret = c(unlist(e1[-idx_dup]),e2)
+  ret = c(unlist(e1[-idx_dup]), e2)
   
   #dt = get(attr(e1, 'ez'))
   #data.table::setattr(dt[[attr(e1, 'col')]], 'labels', ret)
@@ -208,14 +206,19 @@ valueLabels.ez.data.frame <- function(ez, col) {
             'col' = attr(e1, 'col')  )
 }
 
-varLabels <- function(ez, varnames) {
+#' Get variable labels
+#' 
+#' @param ez
+#' @param varnames
+#' @param default default value for when `varnames` exists or labels not 
+#'     set. Value of c("", "var"). Default is "". "var" for copying varnames.
+varLabels <- function(ez, varnames, default = '') {
   UseMethod('varLabels')  
 }
 
-varLabels.ez.data.frame <- function(ez, varnames) {
-  #varnames = varnames[nzchar(varnames)]
+varLabels.ez.data.frame <- function(ez, varnames, default = '') {
   meta = attr(ez, 'meta')
-  metaVarLabels(meta, varnames)
+  if (missing(varnames)) meta else metaVarLabels(meta, varnames, default)
 }
 
 `varLabels<-` <- function(ez, varnames, values) {
@@ -223,6 +226,7 @@ varLabels.ez.data.frame <- function(ez, varnames) {
 }
 
 `varLabels<-.ez.data.frame` <- function(ez, varnames, values) {
+
   meta = attr(ez, 'meta')
   if (!is.null(meta)) {
     meta[varnames, lbl:=values]
@@ -234,26 +238,30 @@ varLabels.ez.data.frame <- function(ez, varnames) {
   ez
 }
 
-metaVarLabels <- function(meta, varnames) {
+#' internal function
+#' @noRd
+metaVarLabels <- function(meta, varnames, default = "") {
   #assertthat::noNA(meta)
   if (!is.null(meta)) {
-    meta = meta[nzchar(meta[, 2, with = F]), ]
-    ret = meta[varnames, ] #nomatch=0
-    keepVarName = getOptKeepVarname()
-    if (keepVarName) {
-      ret[[2]][is.na(ret[[2]])] = ''
-      ret[[2]] = sprintf('%s\n(%s)', ret[[2]], ret[[1]])
-    } else {
-      ret[[2]][is.na(ret[[2]])] = ret[[1]][is.na(ret[[2]])]
-    }
+    # meta = meta[nzchar(meta[, 2, with = F]), ]
+    # ret = meta[varnames, ] #nomatch=0
+    # keepVarName = getOptKeepVarname()
+    # if (keepVarName) {
+    #   ret[[2]][is.na(ret[[2]])] = ''
+    #   ret[[2]] = sprintf('%s\n(%s)', ret[[2]], ret[[1]])
+    # } else {
+    #   ret[[2]][is.na(ret[[2]])] = ret[[1]][is.na(ret[[2]])]
+    # }
+    ret = meta[data.table(var=varnames)]
+    if (default == "var") ret[is.na(lbl), lbl:=var] else ret[is.na(lbl), lbl:=""]
     ret[[2]]
   } else {
-    varnames
+    if (default == "var") varnames else rep("", length(varnames))
   }
 }
 
+#' called in pander_utils.r
 getMetaValueLabels <- function(idx, ftbl.attr, dt) {
-  #lbl = attr(dt[[names(ftbl.attr)[idx] ]], 'labels')
   lbl = getValueLabels(dt, names(ftbl.attr)[idx])
   if (!is.null(lbl)) {
     fetchValueLabels(ftbl.attr[[idx]], lbl, withValue = getOptKeepVal())

@@ -129,8 +129,8 @@ pander.summary.lm_x <- function(x, caption = attr(x, 'caption'), covariate.label
   #  covariate.labels may be a character vector or data.frame ( meta from ez.data.frame or provided as is)
   if (!is.null(covariate.labels)) {
     if (!is.null(dim(covariate.labels))) {
-      #covariate.labels = match_var_labels(rownames(x$coefficients), covariate.labels)[[2]]
-      covariate.labels = metaVarLabels(covariate.labels, rownames(x$coefficients))
+      lbl = metaVarLabels(covariate.labels, rownames(x$coefficients))
+    	covariate.labels = if (getOptKeepVarname()) sprintf('%s\n(%s)', rownames(x$coefficients), lbl) else lbl
     }
   }
   pander.summary.lm_y = get('pander.summary.lm_y', ez_globals)
