@@ -90,7 +90,6 @@ readSPSS<-function(file, lib='foreign', ...) {
   as.ez(dt, meta)
 }
 
-
 #' Convert a data.frame or data.table object into an ez.data.frame.
 #' 
 #' @param df
@@ -117,7 +116,7 @@ as.ez <- function(df, meta = NULL) {
     # set variable.labels attribute for data imported from spss?
     # for better display in data viewer
   }
-  class(df)<-union(c('ez.data.frame', 'ezdf'), class(df))
+  class(df)<-union('ez.data.frame', class(df))
   invisible(df)
 }
 
@@ -141,7 +140,6 @@ getOptKeepVal <- function(){
 getOptValueLabelSep <- function() {
   getOption('ezdfValueLabelSep', default= ' ')
 }
-
 
 valueLabels <- function(ez, col) {
   UseMethod('valueLabels')
