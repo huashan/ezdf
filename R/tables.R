@@ -75,7 +75,7 @@ tbl.ez.data.frame<-function(ez, expr, func = 'mean', N = FALSE, sort = TRUE, ...
       ret = meta[ns, nomatch=0]
       keepVarName = getOptKeepVarname()
       if (keepVarName) {
-        ret[[2]] = paste(ret[[1]], ret[[2]], sep = '\n')
+        ret[[2]] = paste(ret[[1]], ret[[2]], sep = '\t')
       }
       setnames(dat, ret[[1]], ret[[2]])
     }
