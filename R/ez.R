@@ -128,6 +128,14 @@ setmeta.ez.data.frame <- function(ez, meta) {
   as.ez(ez, meta)
 }
 
+getmeta <- function(ez) {
+  UseMethod('getmeta')
+}
+
+getmeta.ez.data.frame <- function(ez) {
+  attr(ez, 'meta')
+}
+
 getOptKeepVarname <- function(){
   keepVarName = getOption('ezdfKeepVarName', default= F)
   keepVarName

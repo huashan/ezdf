@@ -65,7 +65,7 @@ tbl.ez.data.frame<-function(ez, expr, func = 'mean', N = FALSE, sort = TRUE, ...
   
   if (sort) setkeyv(dat, x)
   
-  setmeta<-function() {
+  setVarLabels<-function() {
     meta = attr(ez, 'meta')
     if (!is.null(meta)) {
       meta = meta[nzchar(meta[, 2, with = F]), ]
@@ -97,7 +97,7 @@ tbl.ez.data.frame<-function(ez, expr, func = 'mean', N = FALSE, sort = TRUE, ...
   dat[, `:=`(x, mapply(setValueLabels, .SD, lbls, SIMPLIFY = F)), .SDcols = x, with = F]
   
   # set var labels
-  setmeta()
+  setVarLabels()
   class(dat) = setdiff(class(dat), 'ez.data.frame')
   dat
 }

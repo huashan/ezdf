@@ -1,11 +1,11 @@
 Package: ezdf
 Type: Package
 Title: Easy Data.Frame
-Version: 0.2-17
+Version: 0.2-18
 Date: 2015-12-12
 Author: Huashan Chen
 Maintainer: Huashan Chen <chenhuashan@gmail.com>
-Description: friendly data.frame with label output
+Description: Data.frame with friendly label output.
 License: BSD
 Depends:
     R (>= 3.0),
@@ -18,3 +18,4 @@ LazyData: TRUE
 KeepSource: FALSE
 ByteCompile: yes
 Encoding: UTF-8
+RoxygenNote: 5.0.1
