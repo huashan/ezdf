@@ -17,5 +17,12 @@ Suggests:
 LazyData: TRUE
 KeepSource: FALSE
 ByteCompile: yes
+RemoteType: github
+RemoteHost: api.github.com
+RemoteRepo: ezdf
+RemoteUsername: huashan
+GithubRepo: ezdf
+GithubUsername: huashan
+GithubRef: master
 Encoding: UTF-8
 RoxygenNote: 5.0.1
