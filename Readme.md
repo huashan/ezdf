@@ -4,7 +4,9 @@
 
 # Installation
 
+
 ```r
+install.packages('haven', 'data.table')
 library(devtools)
 install_github('huashan/ezdf')
 ```
@@ -19,6 +21,7 @@ Error in curl::curl_fetch_memory(url, handle = handle) :
 may try these:
 
 ```r
+install.packages('haven', 'data.table')
 options(download.file.method = "wininet")
 install_git("https://github.com/huashan/ezdf")
 ```
