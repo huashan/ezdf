@@ -23,7 +23,7 @@ readStata <- function (file, encoding = NULL, varNameEncoding = encoding,
   charEncoding = encoding) {
   require(haven)
   
-  dt = read_dta(file)
+  dt = read_dta(file, encoding = encoding)
   # 修正数据出现  “Error: `x` and `labels` must be same type”错误的临时解决办法：
   dt = as.data.table(lapply(dt, unclass), stringsAsFactors = F)
   if (!is.null(varNameEncoding)) {
@@ -51,7 +51,7 @@ readStata <- function (file, encoding = NULL, varNameEncoding = encoding,
   }
 
   if (!is.null(encoding)) {
-    Encoding(lbl) = encoding
+    #Encoding(lbl) = encoding # no need for havan v1.0
     
     # use data.table:::setattr() in case package bit is loaded
     invisible(mapply(data.table:::setattr, dt, lbl, name = 'label', SIMPLIFY = F))
