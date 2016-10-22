@@ -1,7 +1,7 @@
 Package: ezdf
 Type: Package
 Title: Easy Data.Frame
-Version: 0.2-18
+Version: 0.2-19
 Date: 2015-12-12
 Author: Huashan Chen
 Maintainer: Huashan Chen <chenhuashan@gmail.com>
