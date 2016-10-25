@@ -22,13 +22,16 @@
 readStata <- function (file, encoding = NULL, varNameEncoding = encoding, 
   charEncoding = encoding) {
   require(haven)
+  optUTF8 = getOption('ezdfForceUTF8', default = F)
   
   dt = read_dta(file, encoding = encoding)
   # 修正数据出现  “Error: `x` and `labels` must be same type”错误的临时解决办法：
   dt = as.data.table(lapply(dt, unclass), stringsAsFactors = F)
+
   if (!is.null(varNameEncoding)) {
   	nn = names(dt)
   	Encoding(nn) = varNameEncoding
+  	if (optUTF8) nn <- iconv(nn, varNameEncoding, 'UTF-8')
   	setnames(dt, nn)
   }
 
@@ -44,6 +47,7 @@ readStata <- function (file, encoding = NULL, varNameEncoding = encoding,
     if (!is.null(llbl)) {
       ns=names(llbl);
       Encoding(ns) = encoding;
+	  	if (optUTF8) ns <- iconv(ns, encoding, 'UTF-8')
       names(llbl) = ns;
       setattr(col, 'labels', llbl);
     }
@@ -137,16 +141,16 @@ getmeta.ez.data.frame <- function(ez) {
 }
 
 getOptKeepVarname <- function(){
-  keepVarName = getOption('ezdfKeepVarName', default= F)
+  keepVarName = getOption('ezdfKeepVarName', default = F)
   keepVarName
 }
 
 getOptKeepVal <- function(){
-  getOption('ezdfKeepVal', default= F)
+  getOption('ezdfKeepVal', default = F)
 }
 
 getOptValueLabelSep <- function() {
-  getOption('ezdfValueLabelSep', default= ' ')
+  getOption('ezdfValueLabelSep', default = ' ')
 }
 
 valueLabels <- function(ez, col) {
